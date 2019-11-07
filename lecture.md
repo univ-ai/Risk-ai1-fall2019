@@ -367,13 +367,13 @@ $$P(1|x) \gt t = \frac{r}{1+r}$$.
 
 ## Bias, Variance, and Bayes risk
 
-*Suppose you hope to build a cat recognizer that has 5% error. Right now, your training set has an error rate of 15%, and your dev set has an error rate of 16%.*
+*Suppose you hope to build a widget recognizer that has 5% error. This is the best even humans can do. Right now, your training set has an error rate of 15%, and your dev set has an error rate of 16%.*
 
 Will adding training data help?
 
 What should you focus your energies on?
 
-(the next few slides are from Andrew Ng's Machine Learning Yearning)
+(This is a problem from Andrew Ng's Machine Learning Yearning)
 
 ---
 
@@ -381,27 +381,13 @@ What should you focus your energies on?
 
 We break the 16% error into two components:
 
-- First, the algorithm’s error rate on a very large training set. In this example, it is 15%. We think of this informally as the algorithm’s  bias .
+- First, the algorithm’s error rate on a very large training set. In this example, it is 15%. We think of this informally as the algorithm’s bias or more precisely unavoidable bias(bayes rate) _ bias.
 - Second, how much worse the algorithm does on the dev (or test) set than the training set. In this example, it does 1% worse on the dev set than the training set. We think of this informally as the algorithm’s  variance 
+- Third, even the perfect classifier (lets say here, humans, have a 5% error rate). This then is the Bayes Rate. We'll assume that the machines wont do better. While this is not always true, it will in any case be a possible limitation of our training data
+
+**ERROR = Unavoidable Bias(Bayes Error) + Bias + Variance**
 
 ---
-
-## Question:
-
-Suppose your algorithm to classify cats performs as follows:
-- Training error = 1%
-- Dev(Validation) error = 11%
-
-What problem do you have?
-
-Now consider this:
-- Training error = 15%
--  Dev error = 16%
-
-What problem do you have? Are you sure?
-
----
-
 
 ## Why is Bayes Risk important?
 
@@ -427,17 +413,38 @@ From Machine Learning Yearning by Andrew Ng:
 
 ---
 
+## What is a good classifier?
+
+We can compare classifiers on accuracy?
+
+But is accuracy really the right measure?
+
+For extremely asymmetric (in size) classes, a stupid baseline will give you more accuracy...
+
+Maybe you want to try and beat that accuracy.
+
+But more importantly you want to minimize the false negatives or the false positives.
+
+---
+
 #ASYMMETRIC CLASSES
 
 - A has large FP[^#]
 - B has large FN. 
-- On asymmetric data sets, A will do very bad.
-- Both downsampling and unequal classes are used in practice
+- On asymmetric data sets, A will do very bad from an accuracy perspective
+- On the other hand it has no FN, so if the cost of FN (as in cancer) is much higher, then A might be the classifier you want!
+- Upsampling, downsampling and unequal classes are used in practice: having too few samples can throw thw training off
 
 
 
 ![fit, left](/Users/rahul/Desktop/bookimages/abmodeldiag.png)
 
+
+---
+
+## How to deal with this
+
+## in a systematic manner?
 
 ---
 
@@ -469,8 +476,10 @@ $$FPR = \frac{FP}{ON} = \frac{FP}{FP+TN}$$
 
 - Rank test set by prob/score from highest to lowest
 - At beginning no +ives
+- Now move threshold just enough that one becomes positive. This might, for example be $p=0.99$
 - Keep moving threshold
-- confusion matrix at each threshold
+- calculate confusion matrix at each threshold
+- plot the TPR against the FPR
 
 ---
 
@@ -488,13 +497,21 @@ $$r = \frac{l_{FN}}{l_{FP}}$$
 
 We look for lines with slope
 
-$$\frac{p(0)}{r\,p(1)} = \frac{p(-)}{r\,p(+)} \sim \frac{10}{r}$$
+$$\frac{p(0)}{r\,p(1)} = \frac{p(-)}{r\,p(+)} \sim \frac{neg/pos\, prevalence}{falseneg/falsepos\, cost}$$
 
 Large $$r$$ penalizes FN.
 
 Churn and Cancer u dont want FN: an uncaught churner or cancer patient (P=churn/cancer)
 
 ![fit, right](/Users/rahul/Desktop/presentationimages/asyroc2.png)
+
+---
+
+## Why not directly minimize cost?
+
+### Average Cost = $$\frac{1}{N}$$(Cost of TP * TP + cost of FP * FP + cost of FN * FN + cost of TN * TN)
+
+### Av. Cost = $$\frac{np.sum(confusion\, matrix \cdot cost\, matrix)}{np.sum(confusion\, matrix)}$$
 
 ---
 
@@ -510,7 +527,7 @@ $$EP = p_a(1) [TPR\,\ell_{11} + (1-TPR) \ell_{10}]$$
         
 Fraction of test set pred to be positive $$x=PP/N$$:
 
-$$x = (TP+FP)/N = TPR\,p_o(1) + FPR\,p_o(0)$$
+$$x = (TP+FP)/N = TPR\,p_a(1) + FPR\,p_a(0)$$
 
 ---
 
